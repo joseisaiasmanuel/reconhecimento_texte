@@ -31,8 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
     imagePicker = ImagePicker();
   }
 
-  void _pickImageAndProcess({required ImageSource source}) async {
-    final pickedImage = await imagePicker.pickImage(source: source);
+  void _pickImageAndProcess() async {
+    final pickedImage = await imagePicker.pickImage(source: ImageSource.camera);
 
     if (pickedImage == null) {
       return;
@@ -45,7 +45,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final inputImage = InputImage.fromFilePath(pickedImage.path);
-      final RecognizedText recognisedText = await textRecognizer.processImage(inputImage);
+      final RecognizedText recognisedText =
+          await textRecognizer.processImage(inputImage);
 
       recognizedText = "";
 
@@ -69,38 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
         isRecognizing = false;
       });
     }
-  }
-
-  void _chooseImageSourceModal() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from gallery'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImageAndProcess(source: ImageSource.gallery);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Take a picture'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImageAndProcess(source: ImageSource.camera);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void _copyTextToClipboard() async {
@@ -132,11 +101,11 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ImagePreview(imagePath: pickedImagePath),
             ),
             ElevatedButton(
-              onPressed: isRecognizing ? null : _chooseImageSourceModal,
+              onPressed: isRecognizing ? null : _pickImageAndProcess,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Pick an image'),
+                  const Text('Take a picture'),
                   if (isRecognizing) ...[
                     const SizedBox(width: 20),
                     const SizedBox(
@@ -185,7 +154,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Flexible(
                           child: SelectableText(
-                            recognizedText.isEmpty ? "No text recognized" : recognizedText,
+                            recognizedText.isEmpty
+                                ? "No text recognized"
+                                : recognizedText,
                           ),
                         ),
                       ],
